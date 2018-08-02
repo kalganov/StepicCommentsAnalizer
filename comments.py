@@ -35,6 +35,20 @@ def get_lessons(course):
     return list_of_lessons
 
 
+def get_certificate_grade(course, user_id):
+    api_url = 'https://stepik.org/api/certificates?user={}'.format(user_id)
+    certificates = requests.get(api_url,
+                                headers={'Authorization': 'Bearer ' + token}).json()['certificates']
+    id = -1
+    for certificate in certificates:
+        if certificate['course'] == course:
+            id = certificate['id']
+            break
+    return id
+
+
+parsed_users = {}
+
 parser = argparse.ArgumentParser()
 parser.add_argument("keys_file", help="File which contains your client_id and client_secret")
 parser.add_argument("course_id", help="Id course for parsing", type=int)
@@ -76,7 +90,15 @@ for lesson in lessons:
 
             for comment in page['comments']:
                 if 'text' in fields:
-                    comment['text'] = str(comment['text']).replace('\n',"")
+                    comment['text'] = str(comment['text']).replace('\n', "")
+                if 'certificate' in fields:
+                    comment_user_id = comment['user']
+                    if comment_user_id in parsed_users:
+                        comment['certificate'] = parsed_users[comment_user_id]
+                    else:
+                        certificate_id = get_certificate_grade(args.course_id, comment_user_id)
+                        comment['certificate'] = certificate_id
+                        parsed_users[comment_user_id] = certificate_id
                 csv_output_file.writerow([comment[field] for field in fields])
 
         progress_bar.update(1)
