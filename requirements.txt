@@ -1,0 +1,6 @@
+certifi==2018.4.16
+chardet==3.0.4
+idna==2.7
+requests==2.19.1
+-e git+https://github.com/tqdm/tqdm.git@625a7dcd8e9e27bee012627e689573bcda8aadf1#egg=tqdm
+urllib3==1.23
