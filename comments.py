@@ -63,7 +63,17 @@ output_file_path = 'comments'
 if args.output_file:
     output_file_path = args.output_file
 
-fields = ['id', 'user', 'text', 'time', 'last_time']
+fields = ['id','parent','user',
+                  'user_role','time','last_time',
+                  'text','reply_count','is_deleted',
+                  'deleted_by','deleted_at','can_edit',
+                  'can_moderate','can_delete','actions',
+                  'target','replies','subscriptions',
+                  'is_pinned','pinned_by','pinned_at',
+                  'is_staff_replied','is_reported','attachments',
+                  'thread','submission','edited_by',
+                  'edited_at','epic_count','abuse_count',
+                  'vote','translations','certificate']
 if args.fields:
     fields.clear()
     with open(args.fields) as file:
@@ -89,8 +99,6 @@ for lesson in lessons:
             has_next_page = page['meta']['has_next']
 
             for comment in page['comments']:
-                if 'text' in fields:
-                    comment['text'] = str(comment['text']).replace('\n', "")
                 if 'certificate' in fields:
                     comment_user_id = comment['user']
                     if comment_user_id in parsed_users:
@@ -99,7 +107,8 @@ for lesson in lessons:
                         certificate_id = get_certificate_grade(args.course_id, comment_user_id)
                         comment['certificate'] = certificate_id
                         parsed_users[comment_user_id] = certificate_id
-                csv_output_file.writerow([comment[field] for field in fields])
+
+                csv_output_file.writerow([str(comment[field]).replace('\n', "") for field in fields])
 
         progress_bar.update(1)
 
