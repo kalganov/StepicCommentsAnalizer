@@ -13,8 +13,8 @@ def get_course_page(course, page):
     return course_page
 
 
-def get_comments_page(step, page):
-    api_url = 'https://stepik.org:443/api/comments?page={}&target={}'.format(page, step)
+def get_comments_page(step, page, user_id):
+    api_url = 'https://stepik.org:443/api/comments?page={}&target={}&user={}'.format(page, step, user_id)
     comments_page = requests.get(api_url,
                                  headers={'Authorization': 'Bearer ' + token}).json()
     return comments_page
@@ -52,28 +52,34 @@ parsed_users = {}
 parser = argparse.ArgumentParser()
 parser.add_argument("keys_file", help="File which contains your client_id and client_secret")
 parser.add_argument("course_id", help="Id course for parsing", type=int)
-parser.add_argument("--output_file", help="output file")
+parser.add_argument("--user_id", help="User id, if you want to get comments from the user")
+parser.add_argument("--output_file", help="Output file")
 parser.add_argument("--fields", help="File with fields, which needed from comments")
 args = parser.parse_args()
 
 token = util_functions.get_token(args.keys_file)
 
 lessons = get_lessons(args.course_id)
+
+user = ""
+if args.user_id:
+    user = args.user_id
+
 output_file_path = 'comments'
 if args.output_file:
     output_file_path = args.output_file
 
-fields = ['id','parent','user',
-                  'user_role','time','last_time',
-                  'text','reply_count','is_deleted',
-                  'deleted_by','deleted_at','can_edit',
-                  'can_moderate','can_delete','actions',
-                  'target','replies','subscriptions',
-                  'is_pinned','pinned_by','pinned_at',
-                  'is_staff_replied','is_reported','attachments',
-                  'thread','submission','edited_by',
-                  'edited_at','epic_count','abuse_count',
-                  'vote','translations','certificate']
+fields = ['id', 'parent', 'user',
+          'user_role', 'time', 'last_time',
+          'text', 'reply_count', 'is_deleted',
+          'deleted_by', 'deleted_at', 'can_edit',
+          'can_moderate', 'can_delete', 'actions',
+          'target', 'replies', 'subscriptions',
+          'is_pinned', 'pinned_by', 'pinned_at',
+          'is_staff_replied', 'is_reported', 'attachments',
+          'thread', 'submission', 'edited_by',
+          'edited_at', 'epic_count', 'abuse_count',
+          'vote', 'translations', 'certificate']
 if args.fields:
     fields.clear()
     with open(args.fields) as file:
@@ -95,7 +101,7 @@ for lesson in lessons:
         has_next_page = True
         while has_next_page:
             page_number += 1
-            page = get_comments_page(step, page_number)
+            page = get_comments_page(step, page_number, user)
             has_next_page = page['meta']['has_next']
 
             for comment in page['comments']:
