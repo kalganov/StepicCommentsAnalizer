@@ -1,51 +1,9 @@
 import argparse
 import csv
-import requests
+
 from tqdm import tqdm
 
 import util_functions
-
-
-def get_course_page(course, page):
-    api_url = 'https://stepik.org:443/api/lessons?page={}&course={}'.format(page, course)
-    course_page = requests.get(api_url,
-                               headers={'Authorization': 'Bearer ' + token}).json()
-    return course_page
-
-
-def get_comments_page(step, page, user_id):
-    api_url = 'https://stepik.org:443/api/comments?page={}&target={}&user={}'.format(page, step, user_id)
-    comments_page = requests.get(api_url,
-                                 headers={'Authorization': 'Bearer ' + token}).json()
-    return comments_page
-
-
-def get_lessons(course):
-    page_number = 0
-    has_next_lessons_page = True
-    list_of_lessons = []
-
-    while has_next_lessons_page:
-        page_number += 1
-        page_content = get_course_page(course, page_number)
-        has_next_lessons_page = page_content['meta']['has_next']
-
-        for lesson in page_content['lessons']:
-            list_of_lessons.append(lesson)
-    return list_of_lessons
-
-
-def get_certificate_grade(course, user_id):
-    api_url = 'https://stepik.org/api/certificates?user={}'.format(user_id)
-    certificates = requests.get(api_url,
-                                headers={'Authorization': 'Bearer ' + token}).json()['certificates']
-    id = -1
-    for certificate in certificates:
-        if certificate['course'] == course:
-            id = certificate['id']
-            break
-    return id
-
 
 parsed_users = {}
 
@@ -57,9 +15,10 @@ parser.add_argument("--output_file", help="Output file")
 parser.add_argument("--fields", help="File with fields, which needed from comments")
 args = parser.parse_args()
 
-token = util_functions.get_token(args.keys_file)
+util_functions.get_token(args.keys_file)
 
-lessons = get_lessons(args.course_id)
+course_id = args.course_id
+lessons = util_functions.get_lessons(course_id)
 
 user = ""
 if args.user_id:
@@ -80,6 +39,7 @@ fields = ['id', 'parent', 'user',
           'thread', 'submission', 'edited_by',
           'edited_at', 'epic_count', 'abuse_count',
           'vote', 'translations', 'certificate']
+
 if args.fields:
     fields.clear()
     with open(args.fields) as file:
@@ -93,6 +53,7 @@ for lesson in lessons:
     for step in lesson['steps']:
         lessons_count += 1
 print("Parsing commentary pages...")
+
 progress_bar = tqdm(total=lessons_count)
 
 for lesson in lessons:
@@ -101,7 +62,7 @@ for lesson in lessons:
         has_next_page = True
         while has_next_page:
             page_number += 1
-            page = get_comments_page(step, page_number, user)
+            page = util_functions.get_comments_page(step, page_number, user, course_id)
             has_next_page = page['meta']['has_next']
 
             for comment in page['comments']:
@@ -110,7 +71,7 @@ for lesson in lessons:
                     if comment_user_id in parsed_users:
                         comment['certificate'] = parsed_users[comment_user_id]
                     else:
-                        certificate_id = get_certificate_grade(args.course_id, comment_user_id)
+                        certificate_id = util_functions.get_certificate_grade(course_id, comment_user_id)
                         comment['certificate'] = certificate_id
                         parsed_users[comment_user_id] = certificate_id
 
