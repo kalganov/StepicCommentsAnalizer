@@ -15,10 +15,10 @@ parser.add_argument("--output_file", help="Output file")
 parser.add_argument("--fields", help="File with fields, which needed from comments")
 args = parser.parse_args()
 
-util_functions.get_token(args.keys_file)
+token = util_functions.get_token(args.keys_file)
 
 course_id = args.course_id
-lessons = util_functions.get_lessons(course_id)
+lessons = util_functions.get_lessons(token, course_id)
 
 user = ""
 if args.user_id:
@@ -62,7 +62,7 @@ for lesson in lessons:
         has_next_page = True
         while has_next_page:
             page_number += 1
-            page = util_functions.get_comments_page(step, page_number, user, course_id)
+            page = util_functions.get_comments_page(token, step, page_number, user, course_id)
             has_next_page = page['meta']['has_next']
 
             for comment in page['comments']:
@@ -71,7 +71,7 @@ for lesson in lessons:
                     if comment_user_id in parsed_users:
                         comment['certificate'] = parsed_users[comment_user_id]
                     else:
-                        certificate_id = util_functions.get_certificate_grade(course_id, comment_user_id)
+                        certificate_id = util_functions.get_certificate_grade(token, course_id, comment_user_id)
                         comment['certificate'] = certificate_id
                         parsed_users[comment_user_id] = certificate_id
 

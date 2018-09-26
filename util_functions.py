@@ -1,8 +1,5 @@
 import requests
 
-token = ""
-
-
 def get_token(key_file):
     # 1. Get your keys at https://stepik.org/oauth2/applications/
     # (client type = confidential, authorization grant type = client credentials)3
@@ -22,14 +19,14 @@ def get_token(key_file):
     return token
 
 
-def get_course_page(course, page):
+def get_course_page(token, course, page):
     api_url = 'https://stepik.org:443/api/lessons?page={}&course={}'.format(page, course)
     course_page = requests.get(api_url,
                                headers={'Authorization': 'Bearer ' + token}).json()
     return course_page
 
 
-def get_comments_page(step, page, user_id, course):
+def get_comments_page(token, step, page, user_id, course):
     api_url = 'https://stepik.org/api/comments?page={}&target={}&user={}&course={}' \
         .format(page, step, user_id, course)
     comments_page = requests.get(api_url,
@@ -37,14 +34,14 @@ def get_comments_page(step, page, user_id, course):
     return comments_page
 
 
-def get_lessons(course):
+def get_lessons(token, course):
     page_number = 0
     has_next_lessons_page = True
     list_of_lessons = []
 
     while has_next_lessons_page:
         page_number += 1
-        page_content = get_course_page(course, page_number)
+        page_content = get_course_page(token, course, page_number)
         has_next_lessons_page = page_content['meta']['has_next']
 
         for lesson in page_content['lessons']:
@@ -52,7 +49,7 @@ def get_lessons(course):
     return list_of_lessons
 
 
-def get_certificate_grade(course, user_id):
+def get_certificate_grade(token, course, user_id):
     api_url = 'https://stepik.org/api/certificates?user={}'.format(user_id)
     certificates = requests.get(api_url,
                                 headers={'Authorization': 'Bearer ' + token}).json()['certificates']
