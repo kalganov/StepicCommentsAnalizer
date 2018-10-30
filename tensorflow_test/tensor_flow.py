@@ -9,18 +9,19 @@ from nltk.stem.snowball import RussianStemmer
 from nltk.tokenize import TweetTokenizer
 from sklearn.model_selection import train_test_split
 from tflearn.data_utils import to_categorical
+from tqdm import tqdm
 
-POSITIVE_TWEETS_CSV = 'positive.csv'
-NEGATIVE_TWEETS_CSV = 'negative.csv'
+POSITIVE_TWEETS_CSV = '../datasets/positive.csv'
+NEGATIVE_TWEETS_CSV = '../datasets/negative.csv'
 
 VOCAB_SIZE = 5000
 
 tweets_col_number = 3
 
 negative_tweets = pd.read_csv(
-    'negative.csv', header=None, delimiter=';')[[tweets_col_number]]
+    NEGATIVE_TWEETS_CSV, header=None, delimiter=';')[[tweets_col_number]]
 positive_tweets = pd.read_csv(
-    'positive.csv', header=None, delimiter=';')[[tweets_col_number]]
+    POSITIVE_TWEETS_CSV, header=None, delimiter=';')[[tweets_col_number]]
 
 stemer = RussianStemmer()
 regex = re.compile('[^а-яА-Я ]')
@@ -42,7 +43,7 @@ tokenizer = TweetTokenizer()
 
 
 def count_unique_tokens_in_tweets(tweets):
-    for _, tweet_series in tweets.iterrows():
+    for _, tweet_series in tqdm(tweets.iterrows(), total=len(tweets)):
         tweet = tweet_series[3]
         tokens = tokenizer.tokenize(tweet)
         for token in tokens:
@@ -51,7 +52,6 @@ def count_unique_tokens_in_tweets(tweets):
 
 
 count_unique_tokens_in_tweets(negative_tweets)
-print("Some work...")
 count_unique_tokens_in_tweets(positive_tweets)
 
 print("Total unique stems found: ", len(stem_count))
@@ -90,10 +90,10 @@ tweet_vectors = np.zeros(
     (len(negative_tweets) + len(positive_tweets), VOCAB_SIZE),
     dtype=np.int_)
 tweets = []
-for ii, (_, tweet) in enumerate(negative_tweets.iterrows()):
+for ii, (_, tweet) in tqdm(enumerate(negative_tweets.iterrows()), total=len(negative_tweets)):
     tweets.append(tweet[3])
     tweet_vectors[ii] = tweet_to_vector(tweet[3])
-for ii, (_, tweet) in enumerate(positive_tweets.iterrows()):
+for ii, (_, tweet) in tqdm(enumerate(positive_tweets.iterrows()), total=len(positive_tweets)):
     tweets.append(tweet[3])
     tweet_vectors[ii + len(negative_tweets)] = tweet_to_vector(tweet[3])
 

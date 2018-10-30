@@ -26,7 +26,7 @@ def get_course_page(token, course, page):
     return course_page
 
 
-def get_comments_page(token, step, page, user_id, course):
+def get_comments_page(token, step='', page=0, user_id='', course=''):
     api_url = 'https://stepik.org/api/comments?page={}&target={}&user={}&course={}' \
         .format(page, step, user_id, course)
     comments_page = requests.get(api_url,
