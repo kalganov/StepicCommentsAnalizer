@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)https://getbootstrap.com/docs/4.0/examples/sign-in/ -->
+<html class="gr__getbootstrap_com" lang="en">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <meta content="" name="description">
+    <meta content="" name="author">
+    <link href="https://getbootstrap.com/favicon.ico" rel="icon">
+
+    <title>Analyze</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <style type="text/css">
+   html,
+body{
+ height: 100%;
+}
+
+#cover {
+  background: #222 url('') center center no-repeat;
+  background-size: cover;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+}
+
+#cover-caption {
+  width: 100%;
+}
+
+
+
+    </style>
+
+</head>
+
+<body>
+<section id="cover">
+    <div id="cover-caption">
+        <div class="container" id="container">
+            <div class="row text-white">
+                <div class="col-sm-6 offset-sm-3 text-center">
+                    <h1 class="display-4">Analyze</h1>
+                    <div class="info-form">
+                        <form action="/analyze" class="form-inlin justify-content-center" id="analyzeForm">
+                            <div class="form-group">
+                                <label class="sr-only">Name</label>
+                                <input class="form-control" name="text" placeholder="Text" type="text">
+                            </div>
+                            <button class="btn btn-success " type="submit">okay, go!</button>
+                        </form>
+                    </div>
+                    <br>
+                    <div id="result"></div>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <script>
+/* прикрепить событие submit к форме */
+$("#analyzeForm").submit(function(event) {
+
+  /* отключение стандартной отправки формы */
+  event.preventDefault();
+
+  /* собираем данные с элементов страницы: */
+  var $form = $( this ),
+      term = $form.find( 'input[name="text"]' ).val(),
+      url = $form.attr( 'action' );
+
+  /* отправляем данные методом POST */
+  console.log(url);
+  console.log(term);
+  var posting = $.post( url, { s: term } );
+
+  /* результат помещаем в div */
+  posting.done(function( data ) {
+<!--    var content = $( data ).find( '#content' );-->
+    console.log(data);
+    $( "#result" ).empty().append( data );
+  });
+});
+
+        </script>
+    </div>
+</section>
+</body>
+</html>
