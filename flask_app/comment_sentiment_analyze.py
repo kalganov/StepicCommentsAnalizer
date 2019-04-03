@@ -24,6 +24,19 @@ stem_cache_model.close()
 stem_count_model.close()
 
 
+def standardize_text(df, text_field):
+    df[text_field] = re.sub(r'@[a-zA-Zа-яА-Я]*[_[a-zA-Zа-яА-Я]*]*', '', df[text_field])
+    df[text_field] = re.sub(r'[^а-яА-Я ]', '', df[text_field])
+    df[text_field] = re.sub(r'http\S+', '', df[text_field])
+    df[text_field] = re.sub(r'http', '', df[text_field])
+    df[text_field] = re.sub(r'@\S+', '', df[text_field])
+    df[text_field] = re.sub(r'(<(/?[^>]+)>)', '', df[text_field])
+    df[text_field] = re.sub(r'[-.?!)(,:]', '', df[text_field])
+    df[text_field] = df[text_field].lower()
+    df[text_field] = df[text_field].strip()
+    return df
+
+
 def get_stem(token):
     stem = stem_cache.get(token, None)
     if stem:
@@ -35,18 +48,25 @@ def get_stem(token):
 
 
 def comment_to_feachure(tweet, show_unknowns=False):
+    text = standardize_text(tweet, 'text')['text']
+
     vector = []
-    for token in tokenizer.tokenize(tweet):
+    for token in tokenizer.tokenize(text):
         stem = get_stem(token)
         if stem:
             vector.append(stem)
         elif show_unknowns:
             print("Unknown token: {}".format(token))
     res = dict([('contains-word(%s)' % w, True) for w in vector])
-    print(res)
     return res
 
 
 def classify(s):
-    return "Tweeter analyze:" + tweeter_classifier.classify(comment_to_feachure(s)) + '\n' + \
-           "Stepic analyze:" + comment_classifier.classify(comment_to_feachure(s))
+    prob1 = tweeter_classifier.prob_classify(comment_to_feachure(s)).prob(
+        tweeter_classifier.classify(comment_to_feachure(s)))
+    prob2 = comment_classifier.prob_classify(comment_to_feachure(s)).prob(
+        comment_classifier.classify(comment_to_feachure(s)))
+    return "Tweeter analyze:" + tweeter_classifier.classify(
+        comment_to_feachure(s)) + ' ' + "{0:.2f}".format(prob1) + '\n' + \
+           "Stepic analyze:" + comment_classifier.classify(
+        comment_to_feachure(s)) + ' ' + "{0:.2f}".format(prob2)

@@ -24,25 +24,23 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
     <style type="text/css">
-   html,
-body{
- height: 100%;
-}
+        html,
+        body {
+            height: 100%;
+        }
 
-#cover {
-  background: #222 url('') center center no-repeat;
-  background-size: cover;
-  height: 100%;
-  text-align: center;
-  display: flex;
-  align-items: center;
-}
+        #cover {
+            background: #222 url('') center center no-repeat;
+            background-size: cover;
+            height: 100%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+        }
 
-#cover-caption {
-  width: 100%;
-}
-
-
+        #cover-caption {
+            width: 100%;
+        }
 
     </style>
 
@@ -67,33 +65,34 @@ body{
                     <br>
                     <div id="result"></div>
                     <br>
+
                 </div>
             </div>
         </div>
         <script>
-/* прикрепить событие submit к форме */
-$("#analyzeForm").submit(function(event) {
+            /* прикрепить событие submit к форме */
+            $("#analyzeForm").submit(function (event) {
 
-  /* отключение стандартной отправки формы */
-  event.preventDefault();
+                /* отключение стандартной отправки формы */
+                event.preventDefault();
 
-  /* собираем данные с элементов страницы: */
-  var $form = $( this ),
-      term = $form.find( 'input[name="text"]' ).val(),
-      url = $form.attr( 'action' );
+                /* собираем данные с элементов страницы: */
+                var $form = $(this),
+                    term = $form.find('input[name="text"]').val(),
+                    url = $form.attr('action');
 
-  /* отправляем данные методом POST */
-  console.log(url);
-  console.log(term);
-  var posting = $.post( url, { s: term } );
+                /* отправляем данные методом POST */
+                console.log(url);
+                console.log(term);
+                var posting = $.post(url, {s: term});
 
-  /* результат помещаем в div */
-  posting.done(function( data ) {
-<!--    var content = $( data ).find( '#content' );-->
-    console.log(data);
-    $( "#result" ).empty().append( data );
-  });
-});
+                /* результат помещаем в div */
+                posting.done(function (data) {
+                    <!--    var content = $( data ).find( '#content' );-->
+                    console.log(data);
+                    $("#result").empty().append(data);
+                });
+            });
 
         </script>
     </div>
