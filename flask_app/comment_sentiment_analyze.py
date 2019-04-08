@@ -62,11 +62,7 @@ def comment_to_feachure(tweet, show_unknowns=False):
 
 
 def classify(s):
-    prob1 = tweeter_classifier.prob_classify(comment_to_feachure(s)).prob(
-        tweeter_classifier.classify(comment_to_feachure(s)))
-    prob2 = comment_classifier.prob_classify(comment_to_feachure(s)).prob(
-        comment_classifier.classify(comment_to_feachure(s)))
-    return "Tweeter analyze:" + tweeter_classifier.classify(
-        comment_to_feachure(s)) + ' ' + "{0:.2f}".format(prob1) + '\n' + \
-           "Stepic analyze:" + comment_classifier.classify(
-        comment_to_feachure(s)) + ' ' + "{0:.2f}".format(prob2)
+    return ((tweeter_classifier.prob_classify(comment_to_feachure(s)).prob('pos'),
+             tweeter_classifier.prob_classify(comment_to_feachure(s)).prob('neg')),
+            (comment_classifier.prob_classify(comment_to_feachure(s)).prob('pos'),
+             comment_classifier.prob_classify(comment_to_feachure(s)).prob('neg')))

@@ -68,7 +68,8 @@ def get_comments(token, url):
             has_next = False
 
         for comment in comments_page['comments']:
-            comments.append(comment)
+            if comment['thread'] == 'default':
+                comments.append(comment)
         page += 1
     return comments
 
