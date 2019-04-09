@@ -20,27 +20,10 @@ card = """<div class="card text-center" style="margin-top: 5px">
   </div>  
 </div>"""
 
-corusel_item = """<div class="carousel-item">
-                                {}
-                            </div>"""
-corusel_item_active = """<div class="carousel-item active">
-                                {}
-                            </div>"""
-
-corusel = """<div id="carouselExampleControls" class="carousel slide" data-ride="carousel" data-interval="false">
-                        <div class="carousel-inner" style="padding-left: 60px; padding-right: 60px">
+list_of_cards = """<div id="list-of-cards">
+                        <div class="table-wrapper-scroll-y my-custom-scrollbar h-100">
                         {}
-                        </div>
-                        <a class="carousel-control-prev" href="#carouselExampleControls" role="button"
-                           data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
-                        </a>
-                        <a class="carousel-control-next" href="#carouselExampleControls" role="button"
-                           data-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
-                        </a>
+                                </div>
                     </div>"""
 
 
@@ -55,17 +38,14 @@ def analyze_text():
 
     for comment in comments:
         prob = res_prob(comment)
-        classy = "<text style=\"color: black\">" + "Probability:" + ' ' + "{0:.2f}".format(
+        classy = "<text style=\"color: black\">Probability:" + ' ' + "{0:.2f}".format(
             prob) + "</text><br>"
         user = stepik.get_user(token, comment['user'])
-        text = comment['text'][:140]
+        text = comment['text']
 
-        if cards is "":
-            cards += corusel_item_active.format(card.format(get_color(prob), user, text, classy))
-        else:
-            cards += corusel_item.format(card.format(get_color(prob), user, text, classy))
+        cards += card.format(get_color(prob), user, text, classy)
 
-    return corusel.format(cards)
+    return list_of_cards.format(cards)
 
 
 @app.route('/')
