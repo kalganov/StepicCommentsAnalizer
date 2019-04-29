@@ -48,7 +48,7 @@ def get_stem(token):
 
 
 def comment_to_feachure(tweet, show_unknowns=False):
-    text = standardize_text(tweet, 'text')['text']
+    text = standardize_text(tweet.copy(), 'text')['text']
 
     vector = []
     for token in tokenizer.tokenize(text):

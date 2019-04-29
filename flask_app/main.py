@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, render_template
 
+import re
 import comment_sentiment_analyze as analyze
 import stepik_facade as stepik
 
 app = Flask(__name__)
 
 token = stepik.get_token('credentials')
+
+list_of_lessons = []
 
 card = """<div class="card text-center" style="margin-top: 5px">
   <div class="card-header" style="color: black">
@@ -26,11 +29,45 @@ list_of_cards = """<div id="list-of-cards">
                                 </div>
                     </div>"""
 
+list_group = """<div class="list-group table-wrapper-scroll-y my-custom-scrollbar h-100">
+    {}
+</div>"""
 
-@app.route('/analyze', methods=['POST'])
-def analyze_text():
-    print(request.form['s'])
-    comments = sorted(stepik.get_comments(token, request.form['s']),
+list_item = """
+<a href="#" class="list-group-item">
+    <div class="row">
+    <div class="col-md-8" style="text-align: left;">
+        <span class="glyphicon glyphicon-user">{}</span> 
+    </div>
+    <div class="col-md-4" style="text-align: right;">
+        <span class="badge">{}</span>
+    </div>
+        </div>
+    </a>
+"""
+
+
+@app.route('/course', methods=['POST'])
+def course_lessons():
+    lessons = sorted(stepik.get_lessons(token, request.form['s']),
+                     key=lambda x: int(x['discussions_count']),
+                     reverse=True)
+
+    items = ""
+
+    for lesson in lessons:
+        items += list_item.format(lesson['title'], lesson['discussions_count'])
+        list_of_lessons.append((lesson['title'], lesson['id']))
+    return list_group.format(items)
+
+
+@app.route('/lesson', methods=['POST'])
+def lesson_analyze():
+    if not list_of_lessons:
+        return ""
+
+    comments = stepik.get_lesson_comments(token, find_id(request.form['s']))
+    comments = sorted(comments,
                       key=lambda x: res_prob(x),
                       reverse=True)
 
@@ -38,12 +75,12 @@ def analyze_text():
 
     for comment in comments:
         prob = res_prob(comment)
-        classy = "<text style=\"color: black\">Probability:" + ' ' + "{0:.2f}".format(
-            prob) + "</text><br>"
+        classy = "<text style=\"color: black\">Probability: " + "{0:.2f}".format(prob) + "</text><br>"
         user = stepik.get_user(token, comment['user'])
-        text = comment['text']
+        text = re.sub(r'(<(/?[^>]+)>)', '', comment['text'])
 
-        cards += card.format(get_color(prob), user, text, classy)
+        if text:
+            cards += card.format(get_color(prob), user, text, classy)
 
     return list_of_cards.format(cards)
 
@@ -51,6 +88,12 @@ def analyze_text():
 @app.route('/')
 def hello_world():
     return render_template('index.html')
+
+
+def find_id(title):
+    for lesson in list_of_lessons:
+        if title == lesson[0]:
+            return lesson[1]
 
 
 def get_color(prob):

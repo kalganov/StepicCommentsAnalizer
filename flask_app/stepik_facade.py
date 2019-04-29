@@ -43,38 +43,37 @@ def get_user(token, user_id):
     return user['users'][0]['full_name']
 
 
-def get_comments(token, url):
-    api_url = 'https://stepik.org:443/api/lessons/{}'.format(url.split('/')[4])
-    print(api_url)
-    lesson = requests.get(api_url, headers={'Authorization': 'Bearer ' + token}).json()
-
-    id = int(url.split('/')[6].split('?')[0]) - 1
-    step_id = lesson['lessons'][0]['steps'][id]
+def get_lesson_comments(token, lesson_id):
+    api_url = 'https://stepik.org:443/api/lessons/{}'.format(lesson_id)
+    steps = requests.get(api_url, headers={'Authorization': 'Bearer ' + token}).json()['lessons'][0]['steps']
 
     comments = []
 
-    has_next = True
-    page = 1
+    for step in steps:
+        has_next = True
+        page = 1
 
-    while has_next:
-        api_url = 'https://stepik.org/api/comments?page={}&target={}' \
-            .format(page, step_id)
-        print('comment' + api_url)
+        while has_next:
+            api_url = 'https://stepik.org/api/comments?page={}&target={}' \
+                .format(page, step)
+            print('comment' + api_url)
 
-        comments_page = requests.get(api_url,
-                                     headers={'Authorization': 'Bearer ' + token}).json()
+            comments_page = requests.get(api_url,
+                                         headers={'Authorization': 'Bearer ' + token}).json()
 
-        if comments_page['meta']['has_next'] == False:
-            has_next = False
+            if not comments_page['meta']['has_next']:
+                has_next = False
 
-        for comment in comments_page['comments']:
-            if comment['thread'] == 'default':
-                comments.append(comment)
-        page += 1
+            for comment in comments_page['comments']:
+                if comment['thread'] == 'default':
+                    comments.append(comment)
+            page += 1
+
     return comments
 
 
-def get_lessons(token, course):
+def get_lessons(token, url):
+    course = url.split('/')[4]
     page_number = 0
     has_next_lessons_page = True
     list_of_lessons = []
@@ -96,6 +95,5 @@ def get_certificate_grade(token, course, user_id):
     id = -1
     for certificate in certificates:
         if certificate['course'] == course:
-            id = certificate['id']
-            break
+            return certificate['id']
     return id

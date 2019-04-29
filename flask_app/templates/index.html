@@ -35,11 +35,11 @@
                 <div id="form-analyze" class="col-sm-6 offset-sm-3 text-center">
                     <h1 class="display-4">Analyze</h1>
                     <div class="info-form">
-                        <form action="/analyze" class="form-inlin justify-content-center" id="analyzeForm">
+                        <form action="/course" class="form-inlin justify-content-center" id="analyzeForm">
                             <div class="form-group">
                                 <label class="sr-only">Name</label>
                                 <input class="form-control" name="text"
-                                       placeholder="Ссылка на степ: https://stepik.org/lesson/90781/step/2?unit=66995"
+                                       placeholder="Ссылка на курс: https://stepik.org/course/4852"
                                        type="text">
                             </div>
                             <button class="btn btn-success " type="submit">okay, go!</button>
@@ -53,19 +53,27 @@
 
 
                 <div id="result"></div>
+                <div id="cards"></div>
 
 
             </div>
         </div>
     </div>
-    <script>
+</section>
+</body>
+</html>
+
+
+
+
+<script>
         /* прикрепить событие submit к форме */
         $("#analyzeForm").submit(function (event) {
 
             /* отключение стандартной отправки формы */
             event.preventDefault();
 
-            $("#form-analyze").append("<div id=\"preloader\">\n" +
+            $("#container").append("<div id=\"preloader\">\n" +
                 "  <div id=\"loader\"></div>\n" +
                 "</div>");
 
@@ -81,15 +89,30 @@
 
             /* результат помещаем в div */
             posting.done(function (data) {
-                $("#form-analyze").removeClass("offset-sm-3");
                 $("#result").addClass("col-sm-6 h-100");
                 console.log(data);
                 $("#result").empty().append(data);
                 $("#preloader").remove();
+<!--                $("#form-analyze").removeClass("offset-sm-3");-->
+                $("#form-analyze").remove();
+
+                $(".list-group-item").click(function() {
+                $("#container").append("<div id=\"preloader\">\n" +
+                    "<div id=\"loader\"></div>\n" +
+                    "</div>");
+                    var $item = $(this),
+                        term = $item.find($("span.glyphicon.glyphicon-user")).text();
+                        console.log(term);
+                    var p = $.post('/lesson', {s: term});
+
+                    p.done(function (data) {
+                        $("#cards").addClass("col-sm-6 h-100");
+                        $("#cards").empty().append(data);
+                        $("#preloader").remove();
+                    });
+
+                });
+
             });
         });
-
     </script>
-</section>
-</body>
-</html>
