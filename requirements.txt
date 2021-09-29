@@ -57,7 +57,7 @@ mkl-fft==1.0.6
 mkl-random==1.0.1
 nbconvert==5.4.0
 nbformat==4.4.0
-nltk==3.3
+nltk==3.6.3
 notebook==5.7.4
 numpy==1.15.3
 pandas==0.23.4
