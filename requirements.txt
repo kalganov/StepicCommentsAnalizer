@@ -103,7 +103,7 @@ tflearn==0.3.2
 tornado==5.1.1
 -e git+https://github.com/tqdm/tqdm.git@625a7dcd8e9e27bee012627e689573bcda8aadf1#egg=tqdm
 traitlets==4.3.2
-Twisted==18.9.0
+Twisted==22.1.0
 urllib3==1.23
 wcwidth==0.1.7
 webencodings==0.5.1
